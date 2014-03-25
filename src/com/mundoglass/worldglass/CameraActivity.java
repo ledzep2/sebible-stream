@@ -29,16 +29,16 @@ import com.google.android.glass.touchpad.GestureDetector;
  * @author ander.martinez@mundoglass.es based on https://github.com/fyhertz/libstreaming
  * @see www.mundoglass.es
  */
-public class CameraActivity extends Activity {
+public class CameraActivity extends Activity implements AsyncTaskCompleteInterface<Integer> {
 
 	public final static String TAG = "CameraActivity";
 	
 
 	private final static VideoQuality QUALITY_GLASS = new VideoQuality(352, 288, 60, 384000); //wifi
 //	private final static VideoQuality QUALITY_GLASS = new VideoQuality(352, 288, 60, 768000); //movil
-	String user = "username";
-	String password = "password";
-	String url = "rtsp://opendev.mundoglass.es:1935/live/test.sdp";
+	String user = "red";
+	String password = "ab";
+	String url = "rtsp://192.168.2.14:1935/live/test.sdp";
 
 	
 	private VideoQuality mQuality = QUALITY_GLASS;			
@@ -53,6 +53,7 @@ public class CameraActivity extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		final CameraActivity activity = this;
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);
 		
@@ -99,7 +100,7 @@ public class CameraActivity extends Activity {
 							mSession.getVideoTrack().setVideoQuality(mQuality);
 							
 							// Start streaming
-							new ToggleStreamAsyncTask().execute();
+							new ToggleStreamAsyncTask(activity).execute();
 
 						}
 					} catch (RuntimeException e) {
@@ -174,9 +175,15 @@ public class CameraActivity extends Activity {
 	// Connects/disconnects to the RTSP server and starts/stops the stream
 	private class ToggleStreamAsyncTask extends AsyncTask<Void,Void,Integer> {
 
-		private final int START_SUCCEEDED = 0x00;
-		private final int START_FAILED = 0x01;
-		private final int STOP = 0x02;
+		public final static int START_SUCCEEDED = 0x00;
+		public final static int START_FAILED = 0x01;
+		public final static int STOP = 0x02;
+		
+		private AsyncTaskCompleteInterface callback;
+		
+		public ToggleStreamAsyncTask(AsyncTaskCompleteInterface callback) {
+			this.callback = callback;
+		}
 
 		@Override
 		protected Integer doInBackground(Void... params) {
@@ -219,6 +226,10 @@ public class CameraActivity extends Activity {
 			}
 			return STOP;
 		}
+		
+		protected void onPostExecute(Integer result) {
+			callback.onTaskComplete(result);
+		}
 
 	}
 	
@@ -246,6 +257,7 @@ public class CameraActivity extends Activity {
 
 	
 	private GestureDetector createGestureDetector(Context context) {
+		final CameraActivity activity = this;
 	    GestureDetector gestureDetector = new GestureDetector(context);
 	        //Create a base listener for generic gestures
 	        gestureDetector.setBaseListener( new GestureDetector.BaseListener() {
@@ -255,12 +267,12 @@ public class CameraActivity extends Activity {
 		                    Log.i(TAG, "onGesture TAP");
 		                    mRelativeLayout.playSoundEffect(SoundEffectConstants.CLICK);		                    
 			       			if (recording == false)  {
-				    			 new ToggleStreamAsyncTask().execute();
+				    			 new ToggleStreamAsyncTask(activity).execute();
 				    			 //Setting recording state to enabled
 				    			 recording = true;
 				    			 Log.i(TAG, "*** onSingleTapUp onClick .start");
 				    		} else {
-				    			 new ToggleStreamAsyncTask().execute();
+				    			 new ToggleStreamAsyncTask(activity).execute();
 				    			 //Setting recording state to disable
 				    			 recording = false;
 				    			 Log.i(TAG, "*** onSingleTapUp onClick .stop");
@@ -311,5 +323,14 @@ public class CameraActivity extends Activity {
 	        }
 	        return false;
 	    }
+
+
+		@Override
+		public void onTaskComplete(Integer result) {
+			// TODO Auto-generated method stub
+			if (result != ToggleStreamAsyncTask.START_SUCCEEDED) {
+				finish();
+			}
+		}
 	
 }
