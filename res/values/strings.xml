@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">GlassStream</string>
+    <string name="app_name">SebibleStream</string>
     <string name="action_settings">Settings</string>
 	
 	<!-- worldglasstv voice trigger -->
-	<string name="worldglasstv_voice_trigger">mundoglass</string>
+	<string name="worldglasstv_voice_trigger">sebible stream</string>
     <string name="worldglasstv_voice_prompt">stream</string>
     
     

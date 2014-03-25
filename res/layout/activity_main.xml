@@ -10,12 +10,13 @@
     tools:context=".MainActivity"
      >
 
-    <ImageView
-        android:id="@+id/imageView1"
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/logo2" />
+        android:text="Tap to start streaming"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

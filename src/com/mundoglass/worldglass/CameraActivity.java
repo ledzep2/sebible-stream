@@ -205,8 +205,8 @@ public class CameraActivity extends Activity {
 					
 					return START_SUCCEEDED;
 				} catch (Exception e) {
-					Log.e(TAG, "Error starting streaiming.", e);
-					Toast.makeText(getApplicationContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+					//Log.e(TAG, "Error starting streaiming.", e);
+					logError(e.getLocalizedMessage());
 					return START_FAILED;
 				}
 			} else {
