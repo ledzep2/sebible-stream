@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -36,9 +37,8 @@ public class CameraActivity extends Activity implements AsyncTaskCompleteInterfa
 
 	private final static VideoQuality QUALITY_GLASS = new VideoQuality(352, 288, 60, 384000); //wifi
 //	private final static VideoQuality QUALITY_GLASS = new VideoQuality(352, 288, 60, 768000); //movil
-	String user = "red";
-	String password = "ab";
-	String url = "rtsp://192.168.2.14:1935/live/test.sdp";
+	//String url = "rtsp://192.168.2.14:1935/live/test.sdp";
+	String uri = "";
 
 	
 	private VideoQuality mQuality = QUALITY_GLASS;			
@@ -56,6 +56,7 @@ public class CameraActivity extends Activity implements AsyncTaskCompleteInterfa
 		final CameraActivity activity = this;
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);
+		uri = activity.getIntent().getStringExtra("uri");
 		
 		// Getting layout
 		mRelativeLayout = (RelativeLayout) findViewById(R.id.camera_activity);
@@ -188,22 +189,45 @@ public class CameraActivity extends Activity implements AsyncTaskCompleteInterfa
 		@Override
 		protected Integer doInBackground(Void... params) {
 			if (!mClient.isStreaming()) {
-				String ip,port,path;
+				String ip,path,userinfo, width, height, bitrate, framerate;
+				int port;
 				try {
 					// We parse the URI written in the Editext
-					Pattern uri = Pattern.compile("rtsp://(.+):(\\d+)/(.+)");
-					Matcher m = uri.matcher(url); m.find();
+					Uri u = Uri.parse(uri);
+					//Pattern p = Pattern.compile("rtsp://(.+):(\\d+)/(.+)");
+					//Matcher m = p.matcher(uri); m.find();
 
-					ip = m.group(1);
-					port = m.group(2);
-					path = m.group(3);
+					ip = u.getHost();
+					port = u.getPort();
+					path = u.getPath();
+					userinfo = u.getUserInfo();
+					width = u.getQueryParameter("w");
+					height = u.getQueryParameter("h");
+					bitrate = u.getQueryParameter("b");
+					framerate = u.getQueryParameter("f");
 					
-					// Connection to the RTSP server
-					if (mSession.getVideoTrack() != null) {
-						mSession.getVideoTrack().setVideoQuality(mQuality);
+					if (framerate == null) {
+						framerate = "24";
 					}
-					mClient.setCredentials(user, password);
-					mClient.setServerAddress(ip, Integer.parseInt(port));
+					
+					if (mSession.getVideoTrack() != null) {
+						if (width != null && height != null && bitrate != null) {
+							VideoQuality vq = new VideoQuality(Integer.parseInt(width), Integer.parseInt(height), Integer.parseInt(framerate), Integer.parseInt(bitrate));
+							mSession.getVideoTrack().setVideoQuality(vq);
+						} else {
+							mSession.getVideoTrack().setVideoQuality(mQuality);
+						}
+					}
+					
+					if (userinfo != null) {
+						String tmp[] = userinfo.split(":");
+						if (tmp.length == 1) {
+							mClient.setCredentials(tmp[0], "");
+						} else if (tmp.length == 2) {
+							mClient.setCredentials(tmp[0], tmp[1]);
+						}
+					}
+					mClient.setServerAddress(ip, port);
 					mClient.setStreamPath("/"+path);
 					mClient.startStream(1);
 					

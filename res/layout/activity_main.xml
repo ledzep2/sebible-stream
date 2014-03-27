@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="Tap to start streaming"
+        android:text="Tap to scan the QR code of rtsp server uri"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>
