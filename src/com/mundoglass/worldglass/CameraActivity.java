@@ -35,7 +35,7 @@ public class CameraActivity extends Activity implements AsyncTaskCompleteInterfa
 	public final static String TAG = "CameraActivity";
 	
 
-	private final static VideoQuality QUALITY_GLASS = new VideoQuality(352, 288, 60, 384000); //wifi
+	private final static VideoQuality QUALITY_GLASS = new VideoQuality(640, 360, 24, 384000); //wifi
 //	private final static VideoQuality QUALITY_GLASS = new VideoQuality(352, 288, 60, 768000); //movil
 	//String url = "rtsp://192.168.2.14:1935/live/test.sdp";
 	String uri = "";
